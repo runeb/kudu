@@ -1,0 +1,12 @@
+return {:event => nil} unless event
+
+node :event => event do
+  attributes :id, :uid, :created_at
+  node :kind => event.score.kind
+  node :document => event.document
+  node :created_by =>  event.identity
+  node :created_by_profile => event.created_by_profile
+  node :external_uid =>  event.score.external_uid
+end
+
+partial :score, :score => event.score

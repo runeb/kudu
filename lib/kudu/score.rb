@@ -2,6 +2,7 @@ class Score < ActiveRecord::Base
   include Pebbles::Path
 
   has_many :acks
+  has_many :events
 
   validates_presence_of :kind, :external_uid
 
@@ -97,6 +98,13 @@ class Score < ActiveRecord::Base
     self.acks.all.each do |ack|
       self.apply_score(ack.value)
     end
+    self.save!
+  end
+
+  # Just count up the events
+  def refresh_from_events!
+    self.reset
+    self.apply_score(self.events.count)
     self.save!
   end
 

@@ -147,6 +147,3 @@ DEPENDENCIES
   thor
   unicorn (~> 4.8.3)
   yajl-ruby (~> 1.2.1)
-
-BUNDLED WITH
-   1.10.3

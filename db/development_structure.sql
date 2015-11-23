@@ -3,6 +3,7 @@
 --
 
 SET statement_timeout = 0;
+SET lock_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
@@ -19,7 +20,6 @@ CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 -- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
 --
 
-COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
 
 SET search_path = public, pg_catalog;
@@ -37,8 +37,8 @@ CREATE TABLE acks (
     score_id integer,
     identity integer NOT NULL,
     value integer,
-    created_at timestamp without time zone,
-    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
     ip text,
     created_by_profile text
 );
@@ -68,6 +68,56 @@ ALTER SEQUENCE acks_id_seq OWNED BY acks.id;
 
 
 --
+-- Name: events; Type: TABLE; Schema: public; Owner: kudu; Tablespace: 
+--
+
+CREATE TABLE events (
+    id integer NOT NULL,
+    identity integer NOT NULL,
+    score_id integer,
+    document text,
+    ip text,
+    created_by_profile text,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.events OWNER TO kudu;
+
+--
+-- Name: events_id_seq; Type: SEQUENCE; Schema: public; Owner: kudu
+--
+
+CREATE SEQUENCE events_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.events_id_seq OWNER TO kudu;
+
+--
+-- Name: events_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: kudu
+--
+
+ALTER SEQUENCE events_id_seq OWNED BY events.id;
+
+
+--
+-- Name: schema_migrations; Type: TABLE; Schema: public; Owner: kudu; Tablespace: 
+--
+
+CREATE TABLE schema_migrations (
+    version character varying(255) NOT NULL
+);
+
+
+ALTER TABLE public.schema_migrations OWNER TO kudu;
+
+--
 -- Name: scores; Type: TABLE; Schema: public; Owner: kudu; Tablespace: 
 --
 
@@ -81,8 +131,8 @@ CREATE TABLE scores (
     positive integer DEFAULT 0,
     negative integer DEFAULT 0,
     controversiality integer DEFAULT 0,
-    created_at timestamp without time zone,
-    updated_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
     histogram text,
     kind text NOT NULL,
     label_0 text,
@@ -101,10 +151,10 @@ CREATE TABLE scores (
 ALTER TABLE public.scores OWNER TO kudu;
 
 --
--- Name: items_id_seq; Type: SEQUENCE; Schema: public; Owner: kudu
+-- Name: scores_id_seq; Type: SEQUENCE; Schema: public; Owner: kudu
 --
 
-CREATE SEQUENCE items_id_seq
+CREATE SEQUENCE scores_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -112,25 +162,14 @@ CREATE SEQUENCE items_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.items_id_seq OWNER TO kudu;
+ALTER TABLE public.scores_id_seq OWNER TO kudu;
 
 --
--- Name: items_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: kudu
+-- Name: scores_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: kudu
 --
 
-ALTER SEQUENCE items_id_seq OWNED BY scores.id;
+ALTER SEQUENCE scores_id_seq OWNED BY scores.id;
 
-
---
--- Name: schema_migrations; Type: TABLE; Schema: public; Owner: kudu; Tablespace: 
---
-
-CREATE TABLE schema_migrations (
-    version character varying(255) NOT NULL
-);
-
-
-ALTER TABLE public.schema_migrations OWNER TO kudu;
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: kudu
@@ -143,7 +182,14 @@ ALTER TABLE ONLY acks ALTER COLUMN id SET DEFAULT nextval('acks_id_seq'::regclas
 -- Name: id; Type: DEFAULT; Schema: public; Owner: kudu
 --
 
-ALTER TABLE ONLY scores ALTER COLUMN id SET DEFAULT nextval('items_id_seq'::regclass);
+ALTER TABLE ONLY events ALTER COLUMN id SET DEFAULT nextval('events_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: kudu
+--
+
+ALTER TABLE ONLY scores ALTER COLUMN id SET DEFAULT nextval('scores_id_seq'::regclass);
 
 
 --
@@ -152,6 +198,14 @@ ALTER TABLE ONLY scores ALTER COLUMN id SET DEFAULT nextval('items_id_seq'::regc
 
 ALTER TABLE ONLY acks
     ADD CONSTRAINT acks_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: events_pkey; Type: CONSTRAINT; Schema: public; Owner: kudu; Tablespace: 
+--
+
+ALTER TABLE ONLY events
+    ADD CONSTRAINT events_pkey PRIMARY KEY (id);
 
 
 --

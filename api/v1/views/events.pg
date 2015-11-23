@@ -1,0 +1,10 @@
+return [] if events.nil?
+collection :events => events do |event|
+  partial :event, :event => event
+end
+
+if pagination
+  node :pagination => pagination do
+    attributes :limit, :offset, :last_page
+  end
+end
